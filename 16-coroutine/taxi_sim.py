@@ -66,8 +66,13 @@ Event = collections.namedtuple('Event', 'time proc action')
 # BEGIN TAXI_PROCESS
 def taxi_process(ident, trips, start_time=0):  # <1>
     """Yield to simulator issuing event at each state change"""
+    """每次改变状态时候创建事件,把控制权让给仿真器
+    ident: 出租车的编号
+    trips: 出租车回家之前的行程数
+    start_time: 离开车库的时间
+    """
     time = yield Event(start_time, ident, 'leave garage')  # <2>
-    for i in range(trips):  # <3>
+    for i in range(trips):  # <3> 每次行程都会执行如下代码
         time = yield Event(time, ident, 'pick up passenger')  # <4>
         time = yield Event(time, ident, 'drop off passenger')  # <5>
 
@@ -80,17 +85,21 @@ def taxi_process(ident, trips, start_time=0):  # <1>
 class Simulator:
 
     def __init__(self, procs_map):
-        self.events = queue.PriorityQueue()
-        self.procs = dict(procs_map)
+        self.events = queue.PriorityQueue()  # 排序队列,按照时间排序
+        self.procs = dict(procs_map)   # 复制参数
 
     def run(self, end_time):  # <1>
-        """Schedule and display events until time is up"""
+        """Schedule and display events until time is up
+        排定并显示事件，直到事件结束
+        """
         # schedule the first event for each cab
+        # 排定各个出租车的第一个事件
         for _, proc in sorted(self.procs.items()):  # <2>
             first_event = next(proc)  # <3>
             self.events.put(first_event)  # <4>
 
         # main loop of the simulation
+        # 仿真系统的主循环
         sim_time = 0  # <5>
         while sim_time < end_time:  # <6>
             if self.events.empty():  # <7>

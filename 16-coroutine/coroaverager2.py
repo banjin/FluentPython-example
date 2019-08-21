@@ -30,7 +30,7 @@ the coroutine::
     >>> try:
     ...     coro_avg.send(None)
     ... except StopIteration as exc:
-    ...     result = exc.value
+    ...     result = exc.value         # 异常对象的value属性保存着返回的值
     ...
     >>> result
     Result(count=3, average=15.5)
